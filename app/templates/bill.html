@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factura</title>
+    <style>
+        @page {
+            size: 15mm;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 0;
+        }
+
+        .encabezado {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="encabezado">
+        <h1>SENIAT</h1>
+        <p>J-123456789</p>
+        <h2>AUTOPARTES CARÚPANO C.A.</h2>
+        <p>Ubicacion</p>
+    </div>
+    <div class="info">
+        <P>CLIENTE: {{ client }}</P>
+        <div class="row">
+            <p>CI/RIF: {{ rif }}</p>
+            <p>-EST 002</p>
+        </div>
+        <p>DIRECCION: CARUPANO EDO SUCCRE</p>
+        <p>AUTOPARTES CARÚPANO C.A.</p>
+    </div>
+    <div class="bill">
+        <div class="bill_info_date">
+            <div class="bill_id">
+                <p>FACTURA:</p>
+                <p>{{ bill_id }}</p>
+            </div>
+            <div class="date">
+                <p>FECHA: {{ now_fecha }}</p>
+                <p>HORA: {{ mow_time }}</p>
+            </div>
+        </div>
+        <div class="bill_sells">
+            {% for product in products %}
+            <table>
+                <tr>
+                    <td>{{ product.cant }} x <strong>Bs.</strong> {{ product.price }}</td>
+                </tr>
+                <tr>
+                    <td>{{ product.name }}</td>
+                    <td><strong>(G)    </strong>Bs. {{ product.price }}</td>
+                </tr>
+            </table>
+        </div>
+        <div class="tarifes">
+
+        </div>
+        <div class="bill_total">
+            <div class="total">
+                <p>TOTAL</p>
+                <p>{{ price_total }}</p>
+            </div>
+        </div>
+    </div>
+</body>
