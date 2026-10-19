@@ -16,7 +16,7 @@ En desarrollo.
 
 1. Clona el repositorio:
    ```bash
-   git clone [https://github.com/tu-usuario/tu-repositorio.git](https://github.com/tu-usuario/tu-repositorio.git)
+   git clone [https://github.com/juanjosehurtadohurtado03-lab/Invontary_system](https://github.com/juanjosehurtadohurtado03-lab/Inventory_system)
    cd Inventory_system
 
 2. ActivCrea y activa el entorno virtual:
