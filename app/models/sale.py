@@ -1,13 +1,15 @@
-from sqlalchemy import Column, String, Integer, Boolean
-from app.database.base import Base
+from sqlalchemy import Column, String, Integer, Boolean, DateTime
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
+from app.database.base import Base
 
 class SaleModel(Base):
     __tablename__ = 'sales'
     
     id = Column(Integer, primary_key=True, index=True)
-    date = Column(String(10), nullable=False)
-    time = Column(String(5), nullable=False)
+    date = Column(DateTime(timezone=True), server_default=func.now())
+    time = Column(DateTime(timezone=True), server_default=func.now())
+    ci_customer = Column(String, nullable=False)
     total = Column(Integer, nullable=False)
     is_active = Column(String(20), default='PENDIENTE')
     sale_details = relationship('SaleDetailsModel', back_populates='sale', cascade='all, delete-orphan')

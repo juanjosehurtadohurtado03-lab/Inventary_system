@@ -22,6 +22,9 @@ class ProductServices:
     def search_one_product(self, product_id: int):
         return self.repo.get_by_id(product_id)
     
+    def search_product_verific(self, id: int = None, name: str = None):
+        return self.repo.search_by_name_and_id(id, name)
+    
     def update_by_id(self, product_id: int, product_update: ProductCreate, name: str = None):
         product = self.repo.get_by_id_or_name(product_id, name)
         if not product:
@@ -33,6 +36,9 @@ class ProductServices:
         for field, value in product_update.model_dump().items():
                 setattr(product, field, value)
         return self.repo.save_product(product)
+    
+    def update_stock_by_id(self, product_id: int, update_stock: int):
+        self.repo.update_stock(product_id, update_stock)
     
     def soft_delete(self, product_id: int):
         product = self.repo.get_by_id(product_id)

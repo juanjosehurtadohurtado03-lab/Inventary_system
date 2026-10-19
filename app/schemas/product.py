@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 
 class ProductCreate(BaseModel):
     name: str
@@ -13,6 +13,8 @@ class ProductCreate(BaseModel):
         return value
 
 class ProductResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    
     id: int
     name: str
     price: int

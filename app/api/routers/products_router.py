@@ -2,9 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.schemas.product import ProductCreate, ProductResponse
 from app.services.products_service import ProductServices
-from app.api.depends.deps_product import get_product_service
+from app.api.depends.deps_product.product import get_product_service
 
-router = APIRouter(prefix='/products', tags=['Products'])
+router = APIRouter(prefix='/product', tags=['Products'])
 
 @router.post('/', response_model=ProductResponse, status_code=status.HTTP_201_CREATED)
 def add_product(product: ProductCreate, serviceProduct: ProductServices = Depends(get_product_service)):
