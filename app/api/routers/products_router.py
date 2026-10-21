@@ -8,7 +8,7 @@ router = APIRouter(prefix='/product', tags=['Products'])
 
 @router.post('/', response_model=ProductResponse, status_code=status.HTTP_201_CREATED)
 def add_product(product: ProductCreate, serviceProduct: ProductServices = Depends(get_product_service)):
-    return serviceProduct.add(product)
+    return serviceProduct.insert_or_restock_product(product)
 
 @router.get('/', response_model=list[ProductResponse])
 def search_products(id: int = None, name: str = None, serviceProduct: ProductServices = Depends(get_product_service)):

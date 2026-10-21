@@ -1,4 +1,6 @@
 from pydantic import BaseModel, Field, field_validator, field_serializer, ConfigDict
+from app.schemas.sale_details import SaleDetailsResponse
+from enum import Enum
 from typing import Optional
 from datetime import datetime
 from app.core.config import DATE_FORMAT, TIME_FORMAT
@@ -18,15 +20,6 @@ class SaleData(BaseModel):
 class SaleCreate(BaseModel):
     ci_customer: str = Field(pattern=r"^\d{8}$", description='La C.I. no puede llevar letras, ni espacios ni simbolos.')
     items: list[SaleData] = []
-
-class SaleDetailsResponse(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-    
-    id: int
-    name: str
-    quantity: int
-    price_unit: int
-    subtotal: int
 
 class SaleResponde(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -50,3 +43,10 @@ class SaleResponde(BaseModel):
         if time_value is None:
             return ''
         return time_value.strftime(TIME_FORMAT)
+
+class SaleStatus(str, Enum):
+    PAID = 'PAGADO'
+    CANCELLED = 'CANCELADO'
+
+class SaleUpdateStatus(BaseModel):
+    status: SaleStatus

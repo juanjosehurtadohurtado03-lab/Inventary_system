@@ -63,18 +63,8 @@ class CRUD_products:
         self.db.refresh(product)
         return product
     
-    def update_stock(self, product_id: int, update_stock: int):
-        product = self.db.query(ProductModel).filter(ProductModel.id == product_id, ProductModel.is_active == True).first()
-        if not product:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail='Lo siento, ha ocurrido un error desconodico.'
-            )
-        product.stock = update_stock
-        if product.stock == 0:
-            product.is_active = False
-        self.db.commit()
-        self.db.refresh(product)
+    def add_update_stock_product(self, product_id: int):
+        return self.db.query(ProductModel).filter(ProductModel.id == product_id).first()
     
     def soft_delete_modific(self, product: ProductModel):
         product.is_active = False

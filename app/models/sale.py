@@ -11,5 +11,5 @@ class SaleModel(Base):
     time = Column(DateTime(timezone=True), server_default=func.now())
     ci_customer = Column(String, nullable=False)
     total = Column(Integer, nullable=False)
-    is_active = Column(String(20), default='PENDIENTE')
+    status = Column(String(20), default='PENDIENTE')
     sale_details = relationship('SaleDetailsModel', back_populates='sale', cascade='all, delete-orphan')

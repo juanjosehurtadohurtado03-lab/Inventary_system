@@ -7,7 +7,7 @@ class ProductServices:
     def __init__(self, repo: CRUD_products):
         self.repo = repo
     
-    def add(self, product: ProductCreate):
+    def insert_or_restock_product(self, product: ProductCreate):
         existing_product = self.repo.post_by_name(product)
         if existing_product:
             return self.repo.restock(existing_product, product)
@@ -38,7 +38,21 @@ class ProductServices:
         return self.repo.save_product(product)
     
     def update_stock_by_id(self, product_id: int, update_stock: int):
-        self.repo.update_stock(product_id, update_stock)
+        self.repo.subtract_update_stock(product_id, update_stock)
+    
+    def add_update_stock(self, product_id: int, update_stock: int):
+        product = self.repo.add_update_stock_product(product_id, update_stock)
+        if not product:
+            raise HTTPException(
+                status_code=404,
+                detail=f'No se ha encontrado el producto ID {product_id}.'
+            )
+        product.stock += update_stock
+        if product.is_active == False:
+            product.is_active = True
+        self.repo.db.commit()
+        self.repo.db.refresh(product)
+        return product
     
     def soft_delete(self, product_id: int):
         product = self.repo.get_by_id(product_id)

@@ -1,6 +1,8 @@
 import sqlite3 
+from sqlalchemy.exc import SQLAlchemyError
 from app.repositories.sale_repository import CRUD_sale
-from app.schemas.sale import SaleData, SaleCreate
+from app.models.sale import SaleModel
+from app.schemas.sale import SaleData, SaleCreate, SaleStatus, SaleUpdateStatus
 from app.services.products_service import ProductServices
 from fastapi import HTTPException, status
 
@@ -27,9 +29,10 @@ class SaleService:
                             status_code=status.HTTP_404_NOT_FOUND,
                             detail=f'No contamos con {item.quantity} unidades de {product.name} en el inventario.'
                         )
-                    total += (product.price * item.quantity)
-                    update_stock = product.stock - item.quantity
-                    self.ProductService.update_stock_by_id(product.id, update_stock)
+                    total += product.price * item.quantity
+                    product.stock -= item.quantity
+                    if product.stock == 0:
+                        product.is_active = False
                     
                     processed_item.append({
                         'product_id': product.id,
@@ -43,10 +46,56 @@ class SaleService:
                         status_code=status.HTTP_404_NOT_FOUND,
                         detail='No se permiten campos vacios.'
                     )
-        
-            return self.repo.create_sale(ci_client=sale_data.ci_customer, total=total, sale_details=processed_item)
-        except sqlite3.Error as e:
+            new_sale = self.repo.create_sale(ci_client=sale_data.ci_customer, total=total, sale_details=processed_item)
+            self.repo.db.commit()
+            self.repo.db.refresh(new_sale)
+            return new_sale
+        except SQLAlchemyError as e:
             self.repo.db.rollback()
             raise HTTPException(
                 status_code=404, detail=f'SQL error: {e}'
             )
+    
+    def pay_or_cancel(self, sale_id: int, sale_status: SaleUpdateStatus):
+        sale = self.repo.search_sale_by_id(sale_id)
+        if not sale:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f'No existe una factura pendiente con el ID {sale_id}.'
+            )
+        if sale.status in [SaleStatus.PAID, SaleStatus.CANCELLED]:
+            raise HTTPException(
+                status_code=404,
+                detail=f'Esta factura se encuentra en estado {sale.status}.'
+            )
+
+        if sale_status == SaleStatus.PAID:
+            return self._handle_paid(sale)
+        elif sale_status == SaleStatus.CANCELLED:
+            return self._handle_cancelled(sale)
+        
+    def _handle_paid(self, sale: SaleModel):
+        sale = SaleStatus.PAID
+        self.repo.db.commit()
+        self.repo.db.refresh(sale)
+        return sale
+        # incluir sistema de factura.
+    
+    def _handle_cancelled(self, sale: SaleModel):
+        list_product_restock = []
+        try:
+            for item in sale.sale_details:
+                product = self.ProductService.add_update_stock(item.product_id, item.quantity)
+                list_product_restock.append(product)
+            sale.status = SaleStatus.CANCELLED
+            self.repo.db.commit()
+            self.repo.db.refresh(sale)
+            return list_product_restock
+        except SQLAlchemyError as e:
+            self.repo.db.rollback()
+            raise HTTPException(
+                status_code=404,
+                detail=f'SQL Error: {e}'
+            )
+            
+#TODO ============================ HACER CAMBIOS AL SERVICIO DE PRODUCT CON LOS COMMIT Y LAS INTERACCIONES ===========================

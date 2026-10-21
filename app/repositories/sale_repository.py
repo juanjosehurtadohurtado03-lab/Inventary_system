@@ -1,8 +1,7 @@
-from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
-from app.models.product import ProductModel
 from app.models.sale import SaleModel
 from app.models.sale_details import SaleDetailsModel
+from app.services.products_service import ProductServices
 from typing import Any
 
 class CRUD_sale:
@@ -29,6 +28,16 @@ class CRUD_sale:
         new_sale.sale_details = items_details_list
         
         self.db.add(new_sale)
-        self.db.commit()
-        self.db.refresh(new_sale)
         return new_sale
+    
+    def search_sale_by_id(self, sale_id:int):
+        return self.db.query(SaleModel).filter(SaleModel.id == sale_id, SaleModel.status.in_(['PENDIENTE'])).first()
+    
+    def update_status_to_paid(self, sale: SaleModel, status: str):
+        sale.status = status
+        self.db.commit()
+        self.db.refresh(sale)
+        return sale
+    
+    def update_status_to_cancelled(self, sale: SaleModel, status: str):
+        pass
