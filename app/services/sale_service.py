@@ -69,13 +69,13 @@ class SaleService:
                 detail=f'Esta factura se encuentra en estado {sale.status}.'
             )
 
-        if sale_status == SaleStatus.PAID:
+        if sale_status.status == SaleStatus.PAID:
             return self._handle_paid(sale)
-        elif sale_status == SaleStatus.CANCELLED:
+        elif sale_status.status == SaleStatus.CANCELLED:
             return self._handle_cancelled(sale)
         
     def _handle_paid(self, sale: SaleModel):
-        sale = SaleStatus.PAID
+        sale.status = SaleStatus.PAID
         self.repo.db.commit()
         self.repo.db.refresh(sale)
         return sale
@@ -85,8 +85,15 @@ class SaleService:
         list_product_restock = []
         try:
             for item in sale.sale_details:
-                product = self.ProductService.add_update_stock(item.product_id, item.quantity)
-                list_product_restock.append(product)
+                self.ProductService.add_update_stock(item.product_id, item.quantity)
+                product_detail = {
+                    'id': item.id,
+                    'name': item.name,
+                    'quantity': item.quantity,
+                    'price_unit': item.price_unit,
+                    'subtotal': item.subtotal
+                }
+                list_product_restock.append(product_detail)
             sale.status = SaleStatus.CANCELLED
             self.repo.db.commit()
             self.repo.db.refresh(sale)
@@ -98,4 +105,4 @@ class SaleService:
                 detail=f'SQL Error: {e}'
             )
             
-#TODO ============================ HACER CAMBIOS AL SERVICIO DE PRODUCT CON LOS COMMIT Y LAS INTERACCIONES ===========================
+#TODO     NO FUNCIONO LA CANCELACION NI PAGO DE FACTURA.

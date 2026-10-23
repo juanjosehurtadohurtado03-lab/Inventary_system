@@ -29,10 +29,7 @@ class CRUD_products:
             elif name:
                 return self.db.query(ProductModel).filter(ProductModel.name.ilike(f'%{name}%'), ProductModel.is_active == True).first()
         else:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail='Campos en blanco no disponibles.'
-            )
+            return None
 
     def get_by_id(self, product_id: int):
         return self.db.query(ProductModel).filter(ProductModel.id == product_id, ProductModel.is_active == True).first()
@@ -41,31 +38,7 @@ class CRUD_products:
         return self.db.query(ProductModel).filter((ProductModel.id == product_id) | (ProductModel.name.ilike(f'%{name}%')), ProductModel.is_active == True).first()
 
     def restock(self, product: ProductModel, product_change: ProductCreate):
-        if product_change.price:
-            product.stock += product_change.stock
-            product.price = product_change.price
-        else:
-            product.stock += product_change.stock
-        product.is_active = True
-        self.db.commit()
-        self.db.refresh(product)
-        return product
-
-    def create_product(self, product: ProductCreate):
-        new_product = ProductModel(**product.model_dump())
-        self.db.add(new_product)
-        self.db.commit()
-        self.db.refresh(new_product)
-        return new_product
-    
-    def save_product(self, product: ProductModel):
-        self.db.commit()
-        self.db.refresh(product)
         return product
     
-    def add_update_stock_product(self, product_id: int):
+    def search_product_by_id(self, product_id: int):
         return self.db.query(ProductModel).filter(ProductModel.id == product_id).first()
-    
-    def soft_delete_modific(self, product: ProductModel):
-        product.is_active = False
-        self.db.commit()

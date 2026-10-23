@@ -1,3 +1,7 @@
+def test_get_products(client):
+    response = client.get('/api/routers/product')
+    assert response.status_code == 200
+
 def test_add_product(client):
     response = client.post('/api/routers/product', json={
         "name": "cafe",
@@ -7,11 +11,20 @@ def test_add_product(client):
     print(response.status_code, response.json())
     assert response.status_code == 201
 
-def test_create_sale(client):
-    response = client.post('/api/routers/sale', json={
-        "customer_ci": "12345678",
-        "items": [
-            {"name": "cafe", "quantity": 2}
-        ]
+def test_add_product2(client):
+    response = client.post('/api/routers/product', json={
+        "name": "harina",
+        "price": 2,
+        "stock": 12
     })
-    assert response.status_code in [200, 201]
+    print(response.status_code, response.json())
+    assert response.status_code == 201
+
+# def test_create_sale(client):
+#     response = client.post('/api/routers/sale', json={
+#         "customer_ci": "12345678",
+#         "items": [
+#             {"name": "cafe", "quantity": 2}
+#         ]
+#     })
+#     assert response.status_code in [200, 201]

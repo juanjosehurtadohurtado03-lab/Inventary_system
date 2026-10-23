@@ -27,9 +27,9 @@ class SaleResponde(BaseModel):
     id: int
     date: datetime
     time: datetime
-    ci_customer: int
+    ci_customer: str
     total: int
-    is_active: str
+    status: str
     sale_details: list[SaleDetailsResponse]
     
     @field_serializer('date')
